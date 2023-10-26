@@ -19,9 +19,6 @@ if platform == "linux" or platform == "linux2":
 elif platform == "win32":
     font = 'arial'
 
-
-large_animal_list = [19, 20, 21, 23, 24, 25]
-
 # Setting page layout
 st.set_page_config(
     page_title="Object Detection",
@@ -30,28 +27,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Main page heading
-st.title("Object Detection using DEtection TRansformer (DETR)")
-
-# Sidebar
-st.sidebar.header("ML Model Config")
-
-# Model Options
-model_type = st.sidebar.radio(
-    "Select Task", ['Detection', 'Segmentation'])
-
-# Detection Options
-detection_type = st.sidebar.radio(
-    "Select Task", ['All', 'Deer'])
-
-confidence = float(st.sidebar.slider(
-    "Select Model Confidence", 25, 100, 40)) / 100
-
-# Selecting Detection Or Segmentation
-if model_type == 'Detection':
-    model_path = Path(settings.DETECTION_MODEL)
-elif model_type == 'Segmentation':
-    model_path = Path(settings.SEGMENTATION_MODEL)
 
 # Load Pre-trained ML Model
 try:
@@ -61,6 +36,31 @@ try:
 except Exception as ex:
     st.error(f"Unable to load model. Check the specified path: {model_path}")
     st.error(ex)
+
+# Main page heading
+st.title("Object Detection using DEtection TRansformer (DETR)")
+
+# Sidebar
+st.sidebar.header("ML Model Config")
+
+# Detection Options
+detection_type = st.sidebar.radio(
+    "Select Detection Type", ['All', 'Deer', 'Custom'])
+
+if detection_type == "Custom":
+    options = st.sidebar.multiselect(
+        'What do you want to find?',
+        list(model.config.label2id.keys()),
+        )
+
+    detection_list = [model.config.label2id[x] for x in options]
+elif detection_type == "Deer":
+    detection_list = [19, 20, 21, 23, 24, 25]
+
+
+confidence = float(st.sidebar.slider(
+    "Select Model Confidence", 25, 100, 40)) / 100
+
 
 st.sidebar.header("Image/Video Config")
 source_radio = st.sidebar.radio(
@@ -97,21 +97,21 @@ if source_radio == settings.IMAGE:
                     res = processor.post_process_object_detection(outputs, target_sizes=target_sizes, threshold=(confidence))[0]
 # filter the results to just the animals of interest
                     if detection_type == 'Deer':
-                        animal_of_interest = np.where(np.isin(res['labels'], large_animal_list))[0]
-                        labels = [f"Confidence: {round(x*100)}" for x in res['scores'][animal_of_interest].tolist()]
+                        item_of_interest = np.where(np.isin(res['labels'], detection_list))[0]
+                        labels = [f"Confidence: {round(x*100)}" for x in res['scores'][item_of_interest].tolist()]
                     else:
-                        animal_of_interest = [True for x in res['labels']]
-                        labels = [f"{model.config.id2label[x]}: conf. {round(score, 3)}" for x, score in zip(res['labels'].tolist(),res['scores'].tolist())]
+                        item_of_interest = np.where(np.isin(res['labels'], detection_list))[0]
+                        labels = [f"{model.config.id2label[x]}: conf. {round(score, 3)}" for x, score in zip(res['labels'][item_of_interest].tolist(), res['scores'][item_of_interest].tolist())]
+                    
                     im = to_pil_image(
                         draw_bounding_boxes(
                             pil_to_tensor(uploaded_image),
-                            res['boxes'][animal_of_interest],
+                            res['boxes'][item_of_interest],
                             colors="red",
                             width=int(target_sizes[0][1]/100),
                             font_size=int(target_sizes[0][1]/25),
                             font=font,
                             labels = labels
-                                      
                                     )
                                 )
             
