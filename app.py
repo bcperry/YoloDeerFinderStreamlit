@@ -102,7 +102,7 @@ if source_radio == settings.IMAGE:
                             colors="red",
                             width=int(target_sizes[0][1]/100),
                             font_size=int(target_sizes[0][1]/25),
-                            font='arial',
+                            font='consola',
                             labels = labels
                                       
                                     )
