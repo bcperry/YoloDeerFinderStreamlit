@@ -13,6 +13,7 @@ import helper
 from torchvision.utils import draw_bounding_boxes
 from torchvision.transforms.functional import pil_to_tensor, to_pil_image
 
+
 large_animal_list = [19, 20, 21, 23, 24, 25]
 
 # Setting page layout
@@ -22,6 +23,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+import matplotlib
+
+system_fonts = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
+
+system_fonts
 
 # Main page heading
 st.title("Object Detection using DEtection TRansformer (DETR)")
