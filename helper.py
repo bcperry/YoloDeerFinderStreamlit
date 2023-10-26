@@ -5,8 +5,42 @@ import cv2
 
 import settings
 
+from transformers import DetrImageProcessor, DetrForObjectDetection
+
+# start with important models and helpers
 @st.cache_resource
-def load_model(model_path):
+def load_model():
+    """
+    Loads a DETR (End-to-End Object Detection) model with ResNet-50 backbone from huggingface.
+
+    Parameters:
+        None
+
+    Returns:
+        DETR Object Detection Model.
+    """
+    model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
+    model.eval()
+
+    return model
+
+# start with important models and helpers
+@st.cache_resource
+def load_processor():
+    """
+    Loads a DetrImageProcessor from huggingface.
+
+    Parameters:
+        None
+
+    Returns:
+        DetrImageProcessor image processor.
+    """
+    processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50", revision="no_timm")
+    return processor
+
+@st.cache_resource
+def load_YOLO_model(model_path):
     """
     Loads a YOLO object detection model from the specified model_path.
 
