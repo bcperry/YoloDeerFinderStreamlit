@@ -58,6 +58,8 @@ if detection_type == "Custom":
     detection_list = [model.config.label2id[x] for x in options]
 elif detection_type == "Deer":
     detection_list = [19, 20, 21, 23, 24, 25]
+else:
+    detection_list = [x for x in model.config.label2id.values()]
 
 
 confidence = float(st.sidebar.slider(
