@@ -13,6 +13,12 @@ import helper
 from torchvision.utils import draw_bounding_boxes
 from torchvision.transforms.functional import pil_to_tensor, to_pil_image
 
+from sys import platform
+if platform == "linux" or platform == "linux2":
+    font = 'DejaVuSans'
+elif platform == "win32":
+    font = 'arial'
+
 
 large_animal_list = [19, 20, 21, 23, 24, 25]
 
@@ -23,12 +29,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-import matplotlib
-
-system_fonts = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
-
-system_fonts
 
 # Main page heading
 st.title("Object Detection using DEtection TRansformer (DETR)")
@@ -109,7 +109,7 @@ if source_radio == settings.IMAGE:
                             colors="red",
                             width=int(target_sizes[0][1]/100),
                             font_size=int(target_sizes[0][1]/25),
-                            font='consola',
+                            font=font,
                             labels = labels
                                       
                                     )
