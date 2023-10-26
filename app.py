@@ -2,6 +2,8 @@
 from pathlib import Path
 import PIL
 import numpy as np
+import tempfile
+import cv2
 
 # External packages
 import streamlit as st
@@ -69,7 +71,7 @@ source_radio = st.sidebar.radio(
 # If image is selected
 if source_radio == settings.IMAGE:
     data = st.sidebar.file_uploader(
-        "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'),
+        "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp', 'mp4'),
         accept_multiple_files=True)
 
     col1, col2 = st.columns(2)
@@ -81,8 +83,23 @@ if source_radio == settings.IMAGE:
             with col1:
                 try:
                     if source_img is not None:
-                        uploaded_image = PIL.Image.open(source_img)
-                        st.image(source_img, caption="Uploaded Image",
+                                # check if the file is a video
+                        if 'video' in source_img.type:
+
+                            tfile = tempfile.NamedTemporaryFile(delete=False)
+                            tfile.write(source_img.read())
+                            vidcap = cv2.VideoCapture(tfile.name)
+
+                            cur_frame = 0
+
+                            success, frame = vidcap.read() # get next frame from video
+                            uploaded_image = PIL.Image.fromarray(frame[:,:,[2,1,0]]) # convert opencv frame (with type()==numpy) into PIL Image
+                            
+                            vidcap.release()
+                        else:
+                            uploaded_image = PIL.Image.open(source_img)
+
+                        st.image(uploaded_image, caption="Uploaded Image",
                                     use_column_width=True)
                 except Exception as ex:
                     st.error("Error occurred while opening the image.")
