@@ -36,7 +36,7 @@ try:
     processor = helper.load_processor()
 
 except Exception as ex:
-    st.error(f"Unable to load model. Check the specified path: {model_path}")
+    st.error(f"Unable to load model.")
     st.error(ex)
 
 # Main page heading
@@ -98,6 +98,7 @@ if source_radio == settings.IMAGE:
                             uploaded_image = PIL.Image.fromarray(frame[:,:,[2,1,0]]) # convert opencv frame (with type()==numpy) into PIL Image
                             
                             vidcap.release()
+                            cv2.destroyAllWindows()
                         else:
                             uploaded_image = PIL.Image.open(source_img)
 
